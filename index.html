@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bangladesh-pulse</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans Bengali', 'SolaimanLipi', Arial, sans-serif; line-height: 1.6; color: #ffffff; background: #1a1a1a; }
+        header { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); color: white; padding: 1rem 0; box-shadow: 0 2px 10px rgba(255,0,0,0.3); position: sticky; top: 0; z-index: 1000; border-bottom: 2px solid #ff0000; }
+        .header-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .logo { display: flex; align-items: center; text-decoration: none; }
+        .logo-img { height: 55px; width: auto; max-width: 220px; object-fit: contain; transition: transform 0.3s;}
+        .logo-img:hover { transform: scale(1.05); }
+        nav ul { display: flex; list-style: none; gap: 2rem; flex-wrap: wrap; }
+        nav a { color: white; text-decoration: none; font-weight: 500; transition: all 0.3s; padding: 0.5rem 1rem; border-radius: 5px; }
+        nav a:hover { background: #ff0000; transform: translateY(-2px); }
+        .hero { background:  url(logo/logo\ main.jpeg); background-size: cover; background-position: center; color: white; padding: 4rem 2rem; text-align: center; border-bottom: 3px solid #ff0000; }
+        .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(255,0,0,0.5); color: #ff0000; }
+        .hero p { font-size: 1.2rem; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; display: grid; grid-template-columns: 1fr 300px; gap: 2rem; }
+        .category-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; background: #000000; padding: 1rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(255,0,0,0.3); border: 1px solid #333; }
+        .category-tab { padding: 0.7rem 1.5rem; background: #1a1a1a; border: 1px solid #333; color: #ffffff; border-radius: 25px; cursor: pointer; transition: all 0.3s; font-size: 1rem; font-weight: 500; }
+        .category-tab:hover { background: #ff0000; color: white; transform: translateY(-2px); border-color: #ff0000; }
+        .category-tab.active { background: #ff0000; color: white; border-color: #ff0000; }
+        .main-content { display: flex; flex-direction: column; gap: 2rem; }
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
+        .news-card { background: #000000; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(255,0,0,0.2); transition: all 0.3s; border: 1px solid #333; }
+        .news-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(255,0,0,0.4); border-color: #ff0000; }
+        .news-image { width: 100%; height: 200px; object-fit: cover; background: linear-gradient(135deg, #ff0000, #000000); }
+        .news-content { padding: 1.5rem; }
+        .news-category { display: inline-block; background: #ff0000; color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; margin-bottom: 0.5rem; }
+        .news-title { font-size: 1.3rem; font-weight: bold; margin: 0.5rem 0; color: #ffffff; }
+        .news-excerpt { color: #cccccc; margin: 0.5rem 0; line-height: 1.5; }
+        .news-meta { display: flex; justify-content: space-between; color: #999; font-size: 0.9rem; margin-top: 1rem; }
+        .read-more-btn { display: inline-block; margin-top: 1rem; padding: 0.7rem 1.5rem; background: #ff0000; color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: 500; transition: all 0.3s; text-decoration: none; font-size: 0.95rem; }
+        .read-more-btn:hover { transform: translateX(5px); box-shadow: 0 4px 10px rgba(255,0,0,0.4); background: #cc0000; }
+        .sidebar { display: flex; flex-direction: column; gap: 2rem; }
+        .widget { background: #000000; padding: 1.5rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(255,0,0,0.2); border: 1px solid #333; }
+        .widget-title { font-size: 1.3rem; font-weight: bold; margin-bottom: 1rem; color: #ff0000; border-bottom: 2px solid #ff0000; padding-bottom: 0.5rem; }
+        .trending-item { display: flex; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #333; cursor: pointer; transition: all 0.3s; }
+        .trending-item:hover { background: #1a1a1a; padding-left: 0.5rem; }
+        .trending-item:last-child { border-bottom: none; }
+        .trending-number { font-size: 1.5rem; font-weight: bold; color: #ff0000; }
+        .trending-title { font-weight: 500; color: #ffffff; font-size: 0.95rem; }
+        footer { background: #000000; color: white; padding: 2rem 0; text-align: center; margin-top: 3rem; border-top: 2px solid #ff0000; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .header-container { flex-direction: column; gap: 1rem; } .logo-img { height: 45px; } nav ul { gap: 1rem; justify-content: center; } .hero h1 { font-size: 1.8rem; } .news-grid { grid-template-columns: 1fr; } .category-tabs { justify-content: center; } }
+        .loading { text-align: center; padding: 2rem; font-size: 1.2rem; color: #ff0000; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img src="logo/logo.png" alt="bangladesh-pulse" class="logo-img">
+            </a>
+            <nav>
+                <ul>
+                    <li><a href="index.html">হোম</a></li>
+                    <li><a href="#" onclick="filterNews('জাতীয়')">জাতীয়</a></li>
+                    <li><a href="#" onclick="filterNews('আন্তর্জাতিক')">আন্তর্জাতিক</a></li>
+                    <li><a href="#" onclick="filterNews('খেলা')">খেলা</a></li>
+                    <li><a href="#" onclick="filterNews('প্রযুক্তি')">প্রযুক্তি</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero">
+        
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="category-tabs" id="categoryTabs">
+                <button class="category-tab active" onclick="filterNews('সব')">সব খবর</button>
+                <button class="category-tab" onclick="filterNews('জাতীয়')">জাতীয়</button>
+                <button class="category-tab" onclick="filterNews('আন্তর্জাতিক')">আন্তর্জাতিক</button>
+                <button class="category-tab" onclick="filterNews('খেলা')">খেলা</button>
+                <button class="category-tab" onclick="filterNews('প্রযুক্তি')">প্রযুক্তি</button>
+                <button class="category-tab" onclick="filterNews('বিনোদন')">বিনোদন</button>
+            </div>
+
+            <div class="news-grid" id="newsGrid">
+                <div class="loading">খবর লোড হচ্ছে...</div>
+            </div>
+        </div>
+
+        <aside class="sidebar">
+            <div class="widget">
+                <h3 class="widget-title">🔥 ট্রেন্ডিং</h3>
+                <div id="trendingNews"></div>
+            </div>
+
+            <div class="widget">
+                <h3 class="widget-title">📌 জনপ্রিয়</h3>
+                <div id="popularNews"></div>
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        <p>&copy; ২০২৪ bangladesh-pulse পোর্টাল | সর্বস্বত্ব সংরক্ষিত</p>
+        <p><a href="admin.html" style="color: #1a1a1a; text-decoration: none;">.</a></p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDElfSp32D212HzT6dPjqXcRhz8pK2xVH4",
+            authDomain: "bangladesh-pulse.firebaseapp.com",
+            projectId: "bangladesh-pulse",
+            storageBucket: "bangladesh-pulse.firebasestorage.app",
+            messagingSenderId: "582457283138",
+            appId: "1:582457283138:web:3398e34939072208d293db",
+            measurementId: "G-KCYNB9XZXF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let newsData = [];
+        let currentCategory = 'সব';
+
+        async function loadNewsData() {
+            try {
+                const q = query(collection(db, 'news'), orderBy('id', 'desc'));
+                const querySnapshot = await getDocs(q);
+                newsData = [];
+                querySnapshot.forEach((doc) => {
+                    newsData.push({ docId: doc.id, ...doc.data() });
+                });
+                if (newsData.length === 0) {
+                    document.getElementById('newsGrid').innerHTML = '<div class="loading">কোনো খবর নেই</div>';
+                }
+            } catch (error) {
+                console.error('Error loading news:', error);
+                document.getElementById('newsGrid').innerHTML = '<div class="loading">খবর লোড করতে সমস্যা হয়েছে</div>';
+            }
+        }
+
+        function renderNews(category = 'সব') {
+            const newsGrid = document.getElementById('newsGrid');
+            const filteredNews = category === 'সব' ? newsData : newsData.filter(news => news.category === category);
+
+            if (filteredNews.length === 0) {
+                newsGrid.innerHTML = '<div class="loading">এই ক্যাটেগরিতে কোনো খবর নেই</div>';
+                return;
+            }
+
+            newsGrid.innerHTML = filteredNews.map(news => `
+                <div class="news-card">
+                    ${news.image ? `<img src="${news.image}" alt="${news.title}" class="news-image">` : '<div class="news-image"></div>'}
+                    <div class="news-content">
+                        <span class="news-category">${news.category}</span>
+                        <h3 class="news-title">${news.title}</h3>
+                        <p class="news-excerpt">${news.excerpt}</p>
+                        <div class="news-meta">
+                            <span>📅 ${news.date}</span>
+                            <span>👁️ ${news.views}</span>
+                        </div>
+                        <button class="read-more-btn" onclick="window.location.href='news-detail.html?id=${news.id}'">
+                            বিস্তারিত পড়ুন →
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.filterNews = function(category) {
+            currentCategory = category;
+            const tabs = document.querySelectorAll('.category-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent === category || (category === 'সব' && tab.textContent === 'সব খবর')) {
+                    tab.classList.add('active');
+                }
+            });
+            renderNews(category);
+        };
+
+        function renderTrending() {
+            const trendingNews = document.getElementById('trendingNews');
+            const trending = [...newsData].sort((a, b) => {
+                const viewsA = parseInt(a.views.replace(/,/g, ''));
+                const viewsB = parseInt(b.views.replace(/,/g, ''));
+                return viewsB - viewsA;
+            }).slice(0, 5);
+
+            trendingNews.innerHTML = trending.map((news, index) => `
+                <div class="trending-item" onclick="window.location.href='news-detail.html?id=${news.id}'">
+                    <div class="trending-number">${index + 1}</div>
+                    <div class="trending-title">${news.title}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderPopular() {
+            const popularNews = document.getElementById('popularNews');
+            const popular = [...newsData].slice(0, 5);
+
+            popularNews.innerHTML = popular.map(news => `
+                <div class="trending-item" onclick="window.location.href='news-detail.html?id=${news.id}'">
+                    <div style="font-size: 0.9rem; color: #cccccc;">
+                        <strong style="color: #ff0000;">${news.category}</strong><br>
+                        ${news.title.substring(0, 50)}...
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function init() {
+            await loadNewsData();
+            renderNews();
+            renderTrending();
+            renderPopular();
+        }
+
+        init();
+    </script>
+</body>
+</html>

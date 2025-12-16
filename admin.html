@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অ্যাডমিন প্যানেল - bangladesh-pulse</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans Bengali', 'SolaimanLipi', Arial, sans-serif; background: #1a1a1a; color: #ffffff; }
+        .admin-header { background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); color: white; padding: 1.5rem; box-shadow: 0 2px 10px rgba(255,0,0,0.3); border-bottom: 2px solid #ff0000; }
+        .admin-header h1 { font-size: 2rem; display: flex; align-items: center; gap: 1rem; }
+        .admin-nav { margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .admin-nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; background: #1a1a1a; border-radius: 5px; transition: all 0.3s; border: 1px solid #333; cursor: pointer; }
+        .admin-nav a:hover { background: #ff0000; border-color: #ff0000; }
+        .admin-container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
+        .form-card { background: #000000; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(255,0,0,0.2); margin-bottom: 2rem; border: 1px solid #333; }
+        .form-card h2 { font-size: 1.8rem; margin-bottom: 1.5rem; color: #ff0000; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #ffffff; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid #333; border-radius: 5px; font-size: 1rem; font-family: 'Noto Sans Bengali', Arial, sans-serif; transition: all 0.3s; background: #1a1a1a; color: #ffffff; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #ff0000; }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .form-group input[type="file"] { padding: 0.5rem; }
+        .image-preview { margin-top: 1rem; max-width: 300px; max-height: 200px; border-radius: 5px; display: none; border: 2px solid #333; }
+        .image-preview.show { display: block; }
+        .btn { padding: 0.8rem 2rem; border: none; border-radius: 25px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: #ff0000; color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(255,0,0,0.4); background: #cc0000; }
+        .btn-success { background: #00ff00; color: #000000; }
+        .btn-danger { background: #ff0000; color: white; }
+        .btn-warning { background: #ffaa00; color: #000000; }
+        .btn-small { padding: 0.5rem 1rem; font-size: 0.9rem; }
+        .news-list-card { background: #000000; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(255,0,0,0.2); border: 1px solid #333; }
+        .news-list-card h2 { font-size: 1.8rem; margin-bottom: 1.5rem; color: #ff0000; }
+        .news-table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+        .news-table thead { background: #1a1a1a; }
+        .news-table th, .news-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #333; color: #ffffff; }
+        .news-table th { font-weight: 600; color: #ff0000; }
+        .news-table tbody tr:hover { background: #1a1a1a; }
+        .news-table img { max-width: 50px; max-height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #333; }
+        .category-badge { display: inline-block; padding: 0.3rem 0.8rem; background: #ff0000; color: white; border-radius: 15px; font-size: 0.85rem; }
+        .action-buttons { display: flex; gap: 0.5rem; }
+        .alert { padding: 1rem; border-radius: 5px; margin-bottom: 1rem; }
+        .alert-success { background: #1a3d1a; color: #00ff00; border: 1px solid #00ff00; }
+        .alert-error { background: #3d1a1a; color: #ff6666; border: 1px solid #ff0000; }
+        @media (max-width: 768px) { .admin-nav { flex-direction: column; } .news-table { font-size: 0.9rem; } .action-buttons { flex-direction: column; } }
+        .hide { display: none; }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <h1>অ্যাডমিন প্যানেল</h1>
+        <div class="admin-nav">
+            <a href="index.html">🏠 সাইট দেখুন</a>
+            <a href="#add-news" onclick="showAddForm()">➕ নতুন নিউজ</a>
+            <a href="#news-list" onclick="showNewsList()">📋 সব নিউজ</a>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <div id="alertMessage" class="hide"></div>
+
+        <div id="newsFormSection" class="form-card">
+            <h2 id="formTitle">➕ নতুন নিউজ যোগ করুন</h2>
+            <form id="newsForm">
+                <input type="hidden" id="newsDocId">
+                <input type="hidden" id="newsId">
+                
+                <div class="form-group">
+                    <label for="category">ক্যাটেগরি *</label>
+                    <select id="category" required>
+                        <option value="">ক্যাটেগরি নির্বাচন করুন</option>
+                        <option value="জাতীয়">জাতীয়</option>
+                        <option value="আন্তর্জাতিক">আন্তর্জাতিক</option>
+                        <option value="খেলা">খেলা</option>
+                        <option value="প্রযুক্তি">প্রযুক্তি</option>
+                        <option value="বিনোদন">বিনোদন</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">নিউজ শিরোনাম *</label>
+                    <input type="text" id="title" placeholder="নিউজের শিরোনাম লিখুন" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="excerpt">সংক্ষিপ্ত বিবরণ *</label>
+                    <textarea id="excerpt" placeholder="নিউজের সংক্ষিপ্ত বিবরণ লিখুন" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="fullContent">পূর্ণ বিবরণ *</label>
+                    <textarea id="fullContent" placeholder="নিউজের সম্পূর্ণ বিবরণ লিখুন" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">তারিখ *</label>
+                    <input type="text" id="date" placeholder="যেমন: ১৪ ডিসেম্বর ২০২৪" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="views">ভিউ সংখ্যা</label>
+                    <input type="text" id="views" placeholder="যেমন: ১০,০০০" value="০">
+                </div>
+
+                <div class="form-group">
+                    <label for="imageUpload">নিউজ ছবি (ঐচ্ছিক - Max 1MB)</label>
+                    <input type="file" id="imageUpload" accept="image/*">
+                    <input type="hidden" id="imageData">
+                    <img id="imagePreview" class="image-preview" alt="Image Preview">
+                </div>
+
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary">💾 সংরক্ষণ করুন</button>
+                    <button type="button" class="btn btn-warning" onclick="resetForm()">🔄 রিসেট</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="newsListSection" class="news-list-card">
+            <h2>📋 সব নিউজের লিস্ট</h2>
+            <div style="overflow-x: auto;">
+                <table class="news-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ছবি</th>
+                            <th>ক্যাটেগরি</th>
+                            <th>শিরোনাম</th>
+                            <th>তারিখ</th>
+                            <th>ভিউ</th>
+                            <th>অ্যাকশন</th>
+                        </tr>
+                    </thead>
+                    <tbody id="newsTableBody"><tr><td colspan="7" style="text-align:center;">লোড হচ্ছে...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDElfSp32D212HzT6dPjqXcRhz8pK2xVH4",
+            authDomain: "bangladesh-pulse.firebaseapp.com",
+            projectId: "bangladesh-pulse",
+            storageBucket: "bangladesh-pulse.firebasestorage.app",
+            messagingSenderId: "582457283138",
+            appId: "1:582457283138:web:3398e34939072208d293db",
+            measurementId: "G-KCYNB9XZXF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let newsData = [];
+
+        async function loadNewsTable() {
+            try {
+                const q = query(collection(db, 'news'), orderBy('id', 'desc'));
+                const querySnapshot = await getDocs(q);
+                newsData = [];
+                querySnapshot.forEach((doc) => {
+                    newsData.push({ docId: doc.id, ...doc.data() });
+                });
+
+                const tbody = document.getElementById('newsTableBody');
+                if (newsData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">কোনো নিউজ নেই</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = newsData.map(news => `
+                    <tr>
+                        <td>${news.id}</td>
+                        <td>${news.image ? `<img src="${news.image}" alt="News">` : '—'}</td>
+                        <td><span class="category-badge">${news.category}</span></td>
+                        <td>${news.title.substring(0, 40)}...</td>
+                        <td>${news.date}</td>
+                        <td>${news.views}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-warning btn-small" onclick="window.editNews('${news.docId}')">✏️ এডিট</button>
+                                <button class="btn btn-danger btn-small" onclick="window.deleteNews('${news.docId}')">🗑️ ডিলিট</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading news:', error);
+                showAlert('লোড করতে সমস্যা হয়েছে: ' + error.message, 'error');
+                document.getElementById('newsTableBody').innerHTML = '<tr><td colspan="7" style="text-align:center; color:#ff6666;">লোড করতে সমস্যা হয়েছে</td></tr>';
+            }
+        }
+
+        async function getNextId() {
+            try {
+                const q = query(collection(db, 'news'), orderBy('id', 'desc'));
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) return 1;
+                
+                let maxId = 0;
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.id && data.id > maxId) {
+                        maxId = data.id;
+                    }
+                });
+                return maxId + 1;
+            } catch (error) {
+                console.error('Error getting next ID:', error);
+                return Date.now();
+            }
+        }
+
+        // Image preview with error handling
+        document.getElementById('imageUpload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if (file.size > 1048576) {
+                    showAlert('ছবির সাইজ 1MB এর বেশি হতে পারবে না!', 'error');
+                    event.target.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    const imageData = document.getElementById('imageData');
+                    preview.src = e.target.result;
+                    preview.classList.add('show');
+                    imageData.value = e.target.result;
+                };
+                reader.onerror = function() {
+                    showAlert('ছবি লোড করতে সমস্যা হয়েছে!', 'error');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.className = type === 'success' ? 'alert alert-success' : 'alert alert-error';
+            alertDiv.textContent = message;
+            alertDiv.classList.remove('hide');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => alertDiv.classList.add('hide'), 5000);
+        }
+
+        window.resetForm = function() {
+            document.getElementById('newsForm').reset();
+            document.getElementById('newsDocId').value = '';
+            document.getElementById('newsId').value = '';
+            document.getElementById('imageData').value = '';
+            document.getElementById('imagePreview').classList.remove('show');
+            document.getElementById('formTitle').textContent = '➕ নতুন নিউজ যোগ করুন';
+        };
+
+        document.getElementById('newsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = '💾 সংরক্ষণ হচ্ছে...';
+            
+            try {
+                const newsDocId = document.getElementById('newsDocId').value;
+                const newsId = document.getElementById('newsId').value;
+                
+                const newsItem = {
+                    id: newsId ? parseInt(newsId) : await getNextId(),
+                    category: document.getElementById('category').value.trim(),
+                    title: document.getElementById('title').value.trim(),
+                    excerpt: document.getElementById('excerpt').value.trim(),
+                    fullContent: document.getElementById('fullContent').value.trim(),
+                    date: document.getElementById('date').value.trim(),
+                    views: document.getElementById('views').value.trim() || '০',
+                    image: document.getElementById('imageData').value || ''
+                };
+
+                console.log('Saving news:', newsItem);
+
+                if (newsDocId) {
+                    await updateDoc(doc(db, 'news', newsDocId), newsItem);
+                    showAlert('নিউজ সফলভাবে আপডেট হয়েছে!', 'success');
+                } else {
+                    const docRef = await addDoc(collection(db, 'news'), newsItem);
+                    console.log('Document written with ID: ', docRef.id);
+                    showAlert('নতুন নিউজ সফলভাবে যোগ হয়েছে!', 'success');
+                }
+                
+                resetForm();
+                await loadNewsTable();
+            } catch (error) {
+                console.error('Error saving news:', error);
+                showAlert('নিউজ সেভ করতে সমস্যা হয়েছে: ' + error.message, 'error');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = '💾 সংরক্ষণ করুন';
+            }
+        });
+
+        window.editNews = function(docId) {
+            const news = newsData.find(n => n.docId === docId);
+            if (news) {
+                document.getElementById('newsDocId').value = news.docId;
+                document.getElementById('newsId').value = news.id;
+                document.getElementById('category').value = news.category;
+                document.getElementById('title').value = news.title;
+                document.getElementById('excerpt').value = news.excerpt;
+                document.getElementById('fullContent').value = news.fullContent;
+                document.getElementById('date').value = news.date;
+                document.getElementById('views').value = news.views;
+                document.getElementById('imageData').value = news.image || '';
+                
+                if (news.image) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.src = news.image;
+                    preview.classList.add('show');
+                }
+                
+                document.getElementById('formTitle').textContent = '✏️ নিউজ এডিট করুন (ID: ' + news.id + ')';
+                showAddForm();
+            }
+        };
+
+        window.deleteNews = async function(docId) {
+            if (confirm('আপনি কি নিশ্চিত এই নিউজটি ডিলিট করতে চান?')) {
+                try {
+                    await deleteDoc(doc(db, 'news', docId));
+                    showAlert('নিউজ সফলভাবে ডিলিট হয়েছে!', 'success');
+                    await loadNewsTable();
+                } catch (error) {
+                    console.error('Error deleting news:', error);
+                    showAlert('নিউজ ডিলিট করতে সমস্যা হয়েছে: ' + error.message, 'error');
+                }
+            }
+        };
+
+        window.showAddForm = function() {
+            document.getElementById('newsFormSection').classList.remove('hide');
+            document.getElementById('newsFormSection').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.showNewsList = function() {
+            document.getElementById('newsListSection').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        loadNewsTable();
+    </script>
+</body>
+</html>
